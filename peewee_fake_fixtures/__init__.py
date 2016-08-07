@@ -23,7 +23,7 @@ def fake_fixture_drop(entities):
 
 
 def fake_fixture(models, field_type_map=None, skip_id=True,
-                        on_failure=None):
+                 on_failure=None):
 
     default_field_type_map = {
         peewee.DateTimeField: datetime.datetime.now,
@@ -46,7 +46,7 @@ def fake_fixture(models, field_type_map=None, skip_id=True,
     for model in sorted_models:
         nm = model()
         logger.info('Creating new:%s model' % model._meta.name)
-        for field in model._meta.get_fields():
+        for name, field in model._meta.fields.items():
             if skip_id and field.name in ('id',):
                 continue
             else:
@@ -59,8 +59,7 @@ def fake_fixture(models, field_type_map=None, skip_id=True,
                 else:
                     if type(field) is peewee.ForeignKeyField:
                         if field.rel_model._meta.name in added_objects:
-                            field_value = field.rel_model.get(id=
-                                        added_objects[field.rel_model._meta.name].id)
+                            field_value = field.rel_model.get(id=added_objects[field.rel_model._meta.name].id)
 
                 logger.info('Setting: %s.%s==%s' % (model._meta.name,
                                                     field.name, field_value))
